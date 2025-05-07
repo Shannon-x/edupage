@@ -11,6 +11,9 @@ let pdfBytes = null;
 let templateImage = null;
 let editableFields = {};
 
+// 预览垂直偏移，用于微调字段位置
+const previewYOffset = 5;
+
 // PDF文件路径
 const PDF_URL = '11.pdf';
 
@@ -245,7 +248,7 @@ async function createEditableTemplate() {
             
             fieldElement.style.position = 'absolute';
             fieldElement.style.left = `${position.x}px`;
-            fieldElement.style.top = `${position.y}px`;
+            fieldElement.style.top = `${position.y - previewYOffset}px`;
             fieldElement.style.width = `${position.width}px`;
             fieldElement.style.height = `${position.height}px`;
             fieldElement.style.zIndex = '10';
@@ -275,7 +278,7 @@ async function createEditableTemplate() {
             
             photoField.style.position = 'absolute';
             photoField.style.left = `${position.x}px`;
-            photoField.style.top = `${position.y}px`;
+            photoField.style.top = `${position.y - previewYOffset}px`;
             photoField.style.width = `${position.width}px`;
             photoField.style.height = `${position.height}px`;
             photoField.style.zIndex = '10';
@@ -381,13 +384,19 @@ async function generatePDF() {
         });
         // 绘制照片字段
         if (data.photo) {
-            const pngImage = await pdfDoc.embedPng(data.photo);
+            // 支持 PNG 和 JPEG 格式
+            let img;
+            if (data.photo.startsWith('data:image/jpeg') || data.photo.startsWith('data:image/jpg')) {
+                img = await pdfDoc.embedJpg(data.photo);
+            } else {
+                img = await pdfDoc.embedPng(data.photo);
+            }
             const pos = fieldPositions.photo;
             const imgWidth = pos.width / scale;
             const imgHeight = pos.height / scale;
             const x = pos.x / scale;
             const y = pageHeight - pos.y / scale - imgHeight;
-            firstPage.drawImage(pngImage, { x, y, width: imgWidth, height: imgHeight });
+            firstPage.drawImage(img, { x, y, width: imgWidth, height: imgHeight });
         }
         // 保存并下载
         const newPdfBytes = await pdfDoc.save();
@@ -564,5 +573,19 @@ function hideLoading() {
     const loadingOverlay = document.querySelector('.loading-overlay');
     if (loadingOverlay) {
         loadingOverlay.style.display = 'none';
+    }
+}
+
+// 更新模板缩放
+function updateTemplateZoom() {
+    const pdfViewer = document.getElementById('pdfViewer');
+    const templateContainer = pdfViewer.querySelector('.template-container');
+    if (templateContainer) {
+        const scale = 1.5;
+        const newWidth = templateImage.width * scale;
+        const newHeight = templateImage.height * scale;
+        templateContainer.style.width = `${newWidth}px`;
+        templateContainer.style.height = `${newHeight}px`;
+        templateContainer.style.top = `-${previewYOffset * scale}px`;
     }
 } 
