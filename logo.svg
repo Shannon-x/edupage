@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="95" fill="#ffffff" stroke="#1a73e8" stroke-width="2" />
+  <circle cx="100" cy="100" r="85" fill="#f5f5f5" stroke="#1a73e8" stroke-width="1" />
+  <path d="M100 30 L120 70 L170 75 L135 105 L145 155 L100 130 L55 155 L65 105 L30 75 L80 70 Z" fill="#1a73e8" />
+  <circle cx="100" cy="100" r="25" fill="#ffffff" />
+  <path d="M85 85 L115 85 L115 95 L105 95 L105 115 L95 115 L95 95 L85 95 Z" fill="#1a73e8" />
+  <text x="100" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1a73e8">CHSI</text>
+</svg> 

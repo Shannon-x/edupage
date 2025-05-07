@@ -1,0 +1,317 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.header-logo img {
+    margin-right: 15px;
+}
+
+h1 {
+    text-align: center;
+    color: #1a73e8;
+}
+
+h2 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.editor-container {
+    display: flex;
+    gap: 20px;
+}
+
+.form-container {
+    flex: 0 0 40%;
+    max-height: none !important;
+    overflow-y: visible !important;
+    padding-right: 15px;
+}
+
+.pdf-container {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+.pdf-viewer {
+    border: 1px solid #ddd;
+    min-height: 70vh;
+    background-color: #f9f9f9;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 20px 0 20px;
+    position: relative;
+}
+
+.pdf-canvas {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.message-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    max-width: 80%;
+    text-align: center;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.5;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pdf-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.pdf-controls button {
+    padding: 8px 15px;
+}
+
+#pageInfo {
+    font-size: 14px;
+}
+
+#zoomLevel {
+    width: 80px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+input[type="file"] {
+    padding: 5px;
+}
+
+.photo-preview {
+    width: 160px;
+    height: 200px;
+    border: 1px dashed #ddd;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.photo-preview img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #1557b0;
+}
+
+.canvas-container {
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-message {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.editable-field {
+    cursor: pointer;
+    border: 1px dashed transparent;
+    padding: 2px 4px;
+    transition: all 0.3s;
+    font-size: 12px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    overflow: hidden;
+}
+
+.editable-field:hover {
+    border-color: #1a73e8;
+    background-color: rgba(26, 115, 232, 0.1);
+    z-index: 15 !important;
+}
+
+.active-field {
+    border: 2px solid #1a73e8;
+    background-color: rgba(26, 115, 232, 0.1);
+    z-index: 20 !important;
+}
+
+.photo-field {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+}
+
+.photo-field:hover {
+    background-color: rgba(26, 115, 232, 0.2);
+}
+
+.photo-field img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 992px) {
+    .editor-container {
+        flex-direction: column;
+    }
+    
+    .form-container, .pdf-container {
+        flex: 0 0 100%;
+        max-height: none;
+    }
+    
+    .pdf-viewer {
+        min-height: 50vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-logo {
+        flex-direction: column;
+    }
+    
+    .header-logo img {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .pdf-controls {
+        flex-wrap: wrap;
+    }
+}
+
+/* 隐藏静态字段 */
+.static-field {
+    display: none;
+}
+
+/* 水印样式 */
+.watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 120px;
+    color: rgba(139, 0, 0, 0.3);
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 5;
+}
+
+/* 联系方式样式 */
+.contact {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.telegram-icon {
+    width: 16px;
+    height: 16px;
+} 

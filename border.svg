@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100" viewBox="0 0 800 1100">
+  <!-- 四角装饰 -->
+  <path d="M10 10H90 V90 H10 Z" stroke="#68b7c9" stroke-width="3" fill="none"/>
+  <path d="M790 10H710 V90 H790 Z" stroke="#68b7c9" stroke-width="3" fill="none"/>
+  <path d="M790 1090H710 V1010 H790 Z" stroke="#68b7c9" stroke-width="3" fill="none"/>
+  <path d="M10 1090H90 V1010 H10 Z" stroke="#68b7c9" stroke-width="3" fill="none"/>
+  
+  <!-- 边框线 -->
+  <rect x="10" y="10" width="780" height="1080" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  
+  <!-- 装饰花纹 - 顶部中央 -->
+  <path d="M400 10 C420 30, 440 10, 460 30 C480 50, 500 30, 520 10" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  <path d="M400 10 C380 30, 360 10, 340 30 C320 50, 300 30, 280 10" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  
+  <!-- 装饰花纹 - 底部中央 -->
+  <path d="M400 1090 C420 1070, 440 1090, 460 1070 C480 1050, 500 1070, 520 1090" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  <path d="M400 1090 C380 1070, 360 1090, 340 1070 C320 1050, 300 1070, 280 1090" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  
+  <!-- 左右装饰 -->
+  <path d="M10 400 C30 420, 10 440, 30 460 C50 480, 30 500, 10 520" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  <path d="M10 700 C30 680, 10 660, 30 640 C50 620, 30 600, 10 580" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  
+  <path d="M790 400 C770 420, 790 440, 770 460 C750 480, 770 500, 790 520" stroke="#68b7c9" stroke-width="2" fill="none"/>
+  <path d="M790 700 C770 680, 790 660, 770 640 C750 620, 770 600, 790 580" stroke="#68b7c9" stroke-width="2" fill="none"/>
+</svg> 
