@@ -11,6 +11,10 @@ let pdfBytes = null;
 let templateImage = null;
 let editableFields = {};
 
+// 计数器相关变量
+let visitCount = 0;
+let downloadCount = 0;
+
 // 预览垂直偏移，用于微调字段位置
 const previewYOffset = 5;
 
@@ -56,6 +60,35 @@ function loadScripts() {
     });
 }
 
+// 更新计数器显示
+function updateCounters() {
+    document.getElementById('visitCounter').textContent = visitCount;
+    document.getElementById('downloadCounter').textContent = downloadCount;
+}
+
+// 从 localStorage 加载计数器数据
+function loadCounters() {
+    const storedVisitCount = localStorage.getItem('visitCount');
+    const storedDownloadCount = localStorage.getItem('downloadCount');
+    
+    visitCount = storedVisitCount ? parseInt(storedVisitCount) : 0;
+    downloadCount = storedDownloadCount ? parseInt(storedDownloadCount) : 0;
+    
+    // 增加访问次数
+    visitCount++;
+    localStorage.setItem('visitCount', visitCount.toString());
+    
+    // 更新显示
+    updateCounters();
+}
+
+// 增加下载次数
+function incrementDownloadCount() {
+    downloadCount++;
+    localStorage.setItem('downloadCount', downloadCount.toString());
+    updateCounters();
+}
+
 // DOM加载完成后执行
 document.addEventListener('DOMContentLoaded', async () => {
     // 显示提示信息
@@ -64,6 +97,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // 加载所需脚本
         await loadScripts();
+        
+        // 加载计数器
+        loadCounters();
         
         // 加载PDF并创建模板
         await initApp();
@@ -408,6 +444,9 @@ async function generatePDF() {
         a.click();
         URL.revokeObjectURL(url);
         hideLoading();
+        
+        // 增加下载计数
+        incrementDownloadCount();
     } catch (error) {
         console.error('生成PDF失败:', error);
         hideLoading();
@@ -416,7 +455,7 @@ async function generatePDF() {
 }
 
 // 显示消息
-function showMessage(message, autoHideMs = 0) {
+function showMessage(message, autoHideMs = 0, type = 'info') {
     const pdfViewer = document.getElementById('pdfViewer');
     
     // 检查是否已有消息元素
@@ -427,8 +466,25 @@ function showMessage(message, autoHideMs = 0) {
         pdfViewer.appendChild(messageEl);
     }
     
-    messageEl.textContent = message;
+    // 添加图标
+    let icon = '';
+    switch(type) {
+        case 'success':
+            icon = '<i class="fas fa-check-circle"></i> ';
+            messageEl.style.backgroundColor = 'rgba(76, 175, 80, 0.9)';
+            break;
+        case 'error':
+            icon = '<i class="fas fa-exclamation-circle"></i> ';
+            messageEl.style.backgroundColor = 'rgba(244, 67, 54, 0.9)';
+            break;
+        default:
+            icon = '<i class="fas fa-info-circle"></i> ';
+            messageEl.style.backgroundColor = 'rgba(33, 150, 243, 0.9)';
+    }
+    
+    messageEl.innerHTML = icon + message;
     messageEl.style.display = 'flex';
+    messageEl.classList.add('slide-in-up');
     
     // 自动隐藏
     if (autoHideMs > 0) {
@@ -442,7 +498,12 @@ function showMessage(message, autoHideMs = 0) {
 function hideMessage() {
     const messageEl = document.querySelector('.message-box');
     if (messageEl) {
-        messageEl.style.display = 'none';
+        messageEl.classList.add('fade-out');
+        setTimeout(() => {
+            messageEl.style.display = 'none';
+            messageEl.classList.remove('fade-out');
+            messageEl.classList.remove('slide-in-up');
+        }, 300);
     }
 }
 
