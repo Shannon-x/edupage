@@ -108,12 +108,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         const photoInput = document.getElementById('photo');
         const photoPreview = document.getElementById('photoPreview');
 
-        // 添加窗口大小改变事件监听器
-        window.addEventListener('resize', debounce(async function() {
-            if (pdfDoc) {
-                await createEditableTemplate();
+        // 添加窗口大小改变事件监听器 - 延迟重绘以提高性能
+        let resizeTimer;
+        const handleResize = async function() {
+            // 显示加载状态，防止用户在重绘期间操作
+            const pdfViewer = document.getElementById('pdfViewer');
+            const templateContainer = pdfViewer.querySelector('.template-container');
+            
+            if (templateContainer) {
+                // 在重绘前先添加调整中的视觉提示
+                templateContainer.style.opacity = '0.5';
+                templateContainer.style.transition = 'opacity 0.2s ease';
             }
-        }, 300));
+            
+            // 延迟重绘
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(async () => {
+                if (pdfDoc) {
+                    // 重新创建模板
+                    await createEditableTemplate();
+                    
+                    // 重新应用表单数据到模板
+                    const formData = getFormData();
+                    updateTemplateWithFormData(formData);
+                }
+            }, 250);
+        };
+        
+        window.addEventListener('resize', debounce(handleResize, 200, false));
 
         photoInput.addEventListener('change', function() {
             const file = this.files[0];
@@ -184,15 +206,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// 防抖函数
-function debounce(func, wait) {
+// 防抖函数 - 增强版，支持立即执行选项
+function debounce(func, wait, immediate = false) {
     let timeout;
     return function() {
         const context = this, args = arguments;
+        const later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        const callNow = immediate && !timeout;
         clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            func.apply(context, args);
-        }, wait);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
     };
 }
 
@@ -284,14 +310,32 @@ async function loadTemplateImage() {
 async function createEditableTemplate() {
     // 准备PDF查看器
     const pdfViewer = document.getElementById('pdfViewer');
+    
+    // 显示加载指示器
+    pdfViewer.innerHTML = '<div class="loading-indicator"><div class="loading-spinner"></div><div>正在渲染预览...</div></div>';
+    
+    // 获取PDF查看器的宽度
+    const viewerWidth = pdfViewer.clientWidth - 40; // 减去内边距
+    
+    // 加一点延迟以显示加载指示器
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // 计算合适的缩放比例
+    const scale = Math.min(1, viewerWidth / templateImage.width);
+    const scaledWidth = templateImage.width * scale;
+    const scaledHeight = templateImage.height * scale;
+    
+    // 清除加载指示器
     pdfViewer.innerHTML = '';
     
     // 创建模板容器
     const templateContainer = document.createElement('div');
     templateContainer.className = 'template-container';
     templateContainer.style.position = 'relative';
-    templateContainer.style.width = `${templateImage.width}px`;
-    templateContainer.style.height = `${templateImage.height}px`;
+    templateContainer.style.width = `${scaledWidth}px`;
+    templateContainer.style.height = `${scaledHeight}px`;
+    templateContainer.style.margin = '0 auto'; // 居中显示
+    templateContainer.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)'; // 添加阴影
     
     // 添加模板背景图
     const bgImage = document.createElement('img');
@@ -302,6 +346,8 @@ async function createEditableTemplate() {
     bgImage.style.top = '0';
     bgImage.style.left = '0';
     bgImage.style.zIndex = '1';
+    bgImage.style.maxWidth = '100%'; // 确保不超出容器
+    bgImage.style.objectFit = 'contain'; // 保持比例
     templateContainer.appendChild(bgImage);
     
     // 创建可编辑字段
@@ -313,11 +359,12 @@ async function createEditableTemplate() {
             fieldElement.dataset.field = fieldName;
             fieldElement.textContent = position.defaultValue || '';
             
+            // 根据缩放比例调整位置和大小
             fieldElement.style.position = 'absolute';
-            fieldElement.style.left = `${position.x}px`;
-            fieldElement.style.top = `${position.y - previewYOffset}px`;
-            fieldElement.style.width = `${position.width}px`;
-            fieldElement.style.height = `${position.height}px`;
+            fieldElement.style.left = `${position.x * scale}px`;
+            fieldElement.style.top = `${(position.y - previewYOffset) * scale}px`;
+            fieldElement.style.width = `${position.width * scale}px`;
+            fieldElement.style.height = `${position.height * scale}px`;
             fieldElement.style.zIndex = '10';
             
             // 添加点击事件
@@ -343,11 +390,12 @@ async function createEditableTemplate() {
             photoField.className = 'editable-field photo-field';
             photoField.dataset.field = 'photo';
             
+            // 根据缩放比例调整位置和大小
             photoField.style.position = 'absolute';
-            photoField.style.left = `${position.x}px`;
-            photoField.style.top = `${position.y - previewYOffset}px`;
-            photoField.style.width = `${position.width}px`;
-            photoField.style.height = `${position.height}px`;
+            photoField.style.left = `${position.x * scale}px`;
+            photoField.style.top = `${(position.y - previewYOffset) * scale}px`;
+            photoField.style.width = `${position.width * scale}px`;
+            photoField.style.height = `${position.height * scale}px`;
             photoField.style.zIndex = '10';
             
             photoField.innerHTML = '<div style="text-align: center; padding-top: 40%;">点击上传照片</div>';
@@ -363,27 +411,69 @@ async function createEditableTemplate() {
         }
     }
     
-    // 添加 3x3 水印网格
-    const cols = 3, rows = 3;
-    for (let i = 0; i < cols; i++) {
-      for (let j = 0; j < rows; j++) {
+    // 添加水印 - 使用单一大水印
+    // 根据PDF大小计算合适的水印大小
+    const pdfWidth = scaledWidth;  // 使用缩放后的宽度
+    const watermarkSize = Math.min(50, pdfWidth * 0.12); // 水印大小与PDF宽度相关，但最大为50px
+    
+    // 创建中央大水印
+    const centerWm = document.createElement('div');
+    centerWm.className = 'watermark';
+    centerWm.textContent = '绝密';
+    centerWm.style.position = 'absolute';
+    centerWm.style.left = `${scaledWidth / 2}px`;
+    centerWm.style.top = `${scaledHeight / 2}px`;
+    centerWm.style.fontSize = `${watermarkSize}px`;
+    centerWm.style.opacity = '0.2';  // 更透明
+    templateContainer.appendChild(centerWm);
+    
+    // 添加四个角的小水印
+    const cornerSize = Math.min(30, pdfWidth * 0.06); // 角落水印更小
+    const cornerPositions = [
+        { x: scaledWidth * 0.2, y: scaledHeight * 0.2 }, // 左上
+        { x: scaledWidth * 0.8, y: scaledHeight * 0.2 }, // 右上
+        { x: scaledWidth * 0.2, y: scaledHeight * 0.8 }, // 左下
+        { x: scaledWidth * 0.8, y: scaledHeight * 0.8 }  // 右下
+    ];
+    
+    cornerPositions.forEach(pos => {
         const wm = document.createElement('div');
         wm.className = 'watermark';
         wm.textContent = '绝密';
         wm.style.position = 'absolute';
-        const x = (templateImage.width / (cols + 1)) * (i + 1);
-        const y = (templateImage.height / (rows + 1)) * (j + 1);
-        wm.style.left = `${x}px`;
-        wm.style.top = `${y}px`;
-        wm.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+        wm.style.left = `${pos.x}px`;
+        wm.style.top = `${pos.y}px`;
+        wm.style.fontSize = `${cornerSize}px`;
+        wm.style.opacity = '0.15';
         templateContainer.appendChild(wm);
-      }
-    }
+    });
     // 裁剪底部灰色空白区域（留出顶部内容）
     templateContainer.style.clipPath = 'inset(0% 0% 15% 0%)';
     
     // 添加到预览区
     pdfViewer.appendChild(templateContainer);
+}
+
+// 更新模板中的表单数据
+function updateTemplateWithFormData(formData) {
+    // 更新每个字段的内容
+    for (const [fieldName, value] of Object.entries(formData)) {
+        if (fieldName !== 'photo' && editableFields[fieldName]) {
+            editableFields[fieldName].textContent = value;
+        }
+    }
+    
+    // 更新照片(如果有)
+    if (formData.photo && editableFields.photo) {
+        const photoImg = document.createElement('img');
+        photoImg.src = formData.photo;
+        photoImg.style.width = '100%';
+        photoImg.style.height = '100%';
+        photoImg.style.objectFit = 'cover';
+        
+        editableFields.photo.innerHTML = '';
+        editableFields.photo.appendChild(photoImg);
+    }
 }
 
 // 填充表单默认值
