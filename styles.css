@@ -11,16 +11,20 @@ body {
     background-color: #f0f2f5;
     padding: 20px;
     transition: all 0.3s ease;
+    overflow-x: hidden; /* 防止横向滚动 */
+    max-width: 100%; /* 确保不会超出屏幕 */
 }
 
 .container {
     max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
     background-color: #fff;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    overflow-x: hidden; /* 防止横向滚动 */
 }
 
 .header-logo {
@@ -60,15 +64,16 @@ h2 {
 
 .editor-container {
     display: flex;
+    flex-wrap: wrap; /* 允许在较小屏幕上换行 */
     gap: 30px;
     margin-top: 20px;
+    width: 100%;
 }
 
 .form-container {
-    flex: 0 0 40%;
+    flex: 1 1 400px; /* 更灵活的布局，最小宽度400px */
     max-height: none !important;
     overflow-y: visible !important;
-    padding-right: 20px;
     padding: 25px;
     background-color: #f9fafc;
     border-radius: 10px;
@@ -76,7 +81,7 @@ h2 {
 }
 
 .pdf-container {
-    flex: 0 0 40%;
+    flex: 1 1 400px; /* 更灵活的布局，最小宽度400px */
     display: flex;
     flex-direction: column;
     padding: 25px;
@@ -87,18 +92,22 @@ h2 {
 
 .pdf-viewer {
     border: 1px solid #ddd;
-    min-height: 70vh;
+    min-height: 500px; /* 使用固定的最小高度而不是视口比例 */
+    max-height: 70vh; /* 设置最大高度为视口的70% */
     background-color: #f9f9f9;
     overflow: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 20px 20px 0 20px;
+    padding: 20px;
     position: relative;
+    width: 100%; /* 确保宽度不会超出父容器 */
 }
 
 .pdf-canvas {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 100%; /* 确保canvas不超出容器宽度 */
+    height: auto !important; /* 覆盖可能的内联样式 */
 }
 
 .message-box {
@@ -319,17 +328,23 @@ button:active {
     }
     
     .form-container, .pdf-container {
-        flex: 0 0 100%;
+        flex: 1 1 100%;
         max-height: none;
+        margin-bottom: 20px;
     }
     
     .pdf-viewer {
-        min-height: 50vh;
+        min-height: 400px;
+        max-height: 60vh;
     }
     
     .footer-content {
         flex-direction: column;
         align-items: center;
+    }
+    
+    .container {
+        padding: 20px 15px;
     }
 }
 
@@ -352,7 +367,17 @@ button:active {
     }
     
     .container {
+        padding: 15px 10px;
+        border-radius: 8px;
+    }
+    
+    .form-container, .pdf-container {
         padding: 15px;
+        border-radius: 8px;
+    }
+    
+    .pdf-viewer {
+        min-height: 350px;
     }
     
     .form-actions {
@@ -367,6 +392,17 @@ button:active {
         flex-direction: column;
         align-items: center;
         gap: 10px;
+    }
+    
+    /* 缩小内边距，节省空间 */
+    h2 {
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        font-size: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 12px;
     }
 }
 
@@ -409,12 +445,14 @@ button:active {
 
 /* 页脚样式 */
 .footer {
-    margin-top: 50px;
+    margin-top: 40px;
     padding-top: 20px;
     border-top: 1px solid #eaeaea;
     text-align: center;
     color: #666;
     font-size: 14px;
+    width: 100%;
+    overflow: hidden; /* 防止内容溢出 */
 }
 
 .footer-content {
@@ -422,7 +460,8 @@ button:active {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 15px;
+    width: 100%;
 }
 
 .site-stats {

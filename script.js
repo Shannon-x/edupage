@@ -108,6 +108,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const photoInput = document.getElementById('photo');
         const photoPreview = document.getElementById('photoPreview');
 
+        // 添加窗口大小改变事件监听器
+        window.addEventListener('resize', debounce(async function() {
+            if (pdfDoc) {
+                await createEditableTemplate();
+            }
+        }, 300));
+
         photoInput.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
@@ -177,6 +184,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(context, args);
+        }, wait);
+    };
+}
+
 // 初始化应用
 async function initApp() {
     try {
@@ -218,8 +237,18 @@ async function loadTemplateImage() {
         // 获取第一页
         const page = await pdfDoc.getPage(1);
         
-        // 设置合适的缩放比例
-        const viewport = page.getViewport({ scale: 1.5 });
+        // 设置合适的缩放比例 - 根据容器宽度自适应
+        const pdfViewer = document.getElementById('pdfViewer');
+        const containerWidth = pdfViewer.clientWidth - 40; // 减去内边距
+        const pdfOriginalWidth = page.getViewport({ scale: 1 }).width;
+        let scale = 1.5;
+        
+        // 如果容器宽度小于PDF原始宽度的1.5倍，则调整缩放比例
+        if (containerWidth < pdfOriginalWidth * 1.5) {
+            scale = containerWidth / pdfOriginalWidth;
+        }
+        
+        const viewport = page.getViewport({ scale: scale });
         
         // 创建canvas来渲染PDF页面
         const canvas = document.createElement('canvas');
@@ -227,6 +256,8 @@ async function loadTemplateImage() {
         
         canvas.width = viewport.width;
         canvas.height = viewport.height;
+        canvas.style.maxWidth = '100%';
+        canvas.style.height = 'auto';
         
         // 渲染PDF页面到canvas
         await page.render({
@@ -649,4 +680,4 @@ function updateTemplateZoom() {
         templateContainer.style.height = `${newHeight}px`;
         templateContainer.style.top = `-${previewYOffset * scale}px`;
     }
-} 
+}
